@@ -1,0 +1,173 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} UI Forms {% endblock %} 
+{% load widget_tweaks %}
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ ASSETS_ROOT }}/css/dataTables.min.css">
+{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- [ Main Content ] start -->
+    <div class="pcoded-main-container">
+        <div class="pcoded-wrapper">
+            <div class="pcoded-content">
+                <div class="pcoded-inner-content">
+                    <!-- [ breadcrumb ] start -->
+                    <div class="page-header">
+                        <div class="page-block">
+                            <div class="row align-items-center">
+                                <div class="col-md-12">
+                                    <div class="page-header-title">
+                                        
+                                    </div>
+                                    <ul class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="/"><i class="feather icon-home"></i></a></li>
+                                        <li class="breadcrumb-item"><a href="javascript:">Register Cpanel</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- [ breadcrumb ] end -->
+                    <div class="main-body">
+                        <div class="page-wrapper">
+                            <!-- [ Main Content ] start -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <!-- Form Entry Cpanel -->
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h5>Form Entry Cpanel</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <form method="post" class="needs-validation" novalidate >
+                                                {% csrf_token %}
+                                                {% for field in form_cpanel.visible_fields %}
+                                                <div class="form-group row">
+                                                    <label class="col-form-label col-lg-4 col-sm-12 text-lg-end">{{ field.label }}</label>
+                                                    <div class="col-lg-6 col-md-11 col-sm-12">
+                                                        {% render_field field %}
+                                                        {% if field.name == 'group_domain' %}
+                                                            <small class="form-text text-muted">Example format. strukturpintar.com</small>
+                                                        {% endif %}
+                                                        {% if field.name == 'cpanel_domain' %}
+                                                            <small class="form-text  font-italic">Example format. http://www.strukturpintar.com/cpanel</small>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                {% endfor %}
+
+                                                <div class="form-group row">
+                                                    <label class="col-form-label col-lg-4 col-sm-12 text-lg-end"></label>
+                                                    <div class="col-lg-6 col-md-11 col-sm-12">
+                                                        {% if gp_domain %}
+                                                            <button type="submit" class="btn btn-primary" name="update">Update</button>
+                                                        {% else %}
+                                                            <button type="submit" class="btn btn-primary" name="register">Register</button>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <table id="example" class="table table-hover" >
+                                                <thead>
+                                                    <tr>
+                                                        <th>Group Domain</th>
+                                                        <th>Cpanel Link</th>
+                                                        <th>Created By</th>
+                                                        <th width="5%">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for data_cpanel in cpanel %}
+                                                    <tr>
+                                                        <td>{{ data_cpanel.group_domain }}</td>
+                                                        <td>{{ data_cpanel.cpanel_domain }}</td>
+                                                        <td>{{ data_cpanel.created_by }}</td>
+                                                        <td style="text-align:center">
+                                                            <a href="{% url 'home:update_cpanel' data_cpanel.id %}" id="{{data_cpanel.id}}" class="btn btn-act btn-outline-primary feather icon-edit" data-toggle="tooltip" data-bs-placement="top" title="update data"></a>
+                                                            <a href="{% url 'home:delete_cpanel' data_cpanel.id %}" id="{{data_cpanel.id}}" class="btn btn-act btn-outline-danger feather icon-trash" data-toggle="tooltip" data-bs-placement="top" title="delete data"></a>
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th>Group Domain</th>
+                                                        <th>Cpanel Link</th>
+                                                        <th>Created By</th>
+                                                        <th width="5%">Action</th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- [ Main Content ] end -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    <!-- [ Main Content ] end -->
+
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+
+<script src="{{ ASSETS_ROOT }}/js/dataTables.bundle.js"></script>
+<script src="{{ ASSETS_ROOT }}/js/jbvalidator.js"></script>
+<script src="{{ ASSETS_ROOT }}/js/sweetalert2.all.min.js"></script>
+<script src="{{ ASSETS_ROOT }}/js/script-add.js"></script>
+    {% if messages %}
+        {% for message in messages %}
+            {% if message.tags == "success" %}
+                <script>
+                    window.addEventListener('load', successCpanel('{{message}}'));
+                </script>
+            {% elif message.tags == "warning" %}
+                <script>
+                    window.addEventListener('load', duplicateCpanel('{{message}}'));
+                </script>
+            {% else %}
+                <script>
+                    window.addEventListener('load', deleteCpanel('{{message}}'));
+                </script>
+            {% endif %}
+            <!-- {% if message.tags == "success" %}
+                <script>
+                    Swal.fire({
+                        title: '{{message}}',
+                        text: '{{message|lower}} success ',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                </script>
+            {% elif message.tags == "warning" %}
+                <script>
+                    Swal.fire({
+                        title: '{{message}}',
+                        text: 'Please change the group domain ',
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                </script>
+            {% endif %} -->
+        {% endfor %}
+    {% endif %}
+
+
+
+{% endblock javascripts %}
